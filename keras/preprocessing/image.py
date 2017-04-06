@@ -494,8 +494,21 @@ class ImageDataGenerator(object):
             x /= (np.std(x, axis=img_channel_axis, keepdims=True) + 1e-7)
 
         if self.featurewise_center:
-            if self.mean is not None:
-                x -= self.mean
+            if True:
+    		if self.data_format == 'channels_first':
+    	        	# 'RGB'->'BGR'
+        		x = x[:, ::-1, :, :]
+        		# Zero-center by mean pixel
+        		x[:, 0, :, :] -= 103.939
+        		x[:, 1, :, :] -= 116.779
+        		x[:, 2, :, :] -= 123.68
+    		else:
+        		# 'RGB'->'BGR'
+        		x = x[:, :, :, ::-1]
+        		# Zero-center by mean pixel
+        		x[:, :, :, 0] -= 103.939
+        		x[:, :, :, 1] -= 116.779
+        		x[:, :, :, 2] -= 123.68
             else:
                 warnings.warn('This ImageDataGenerator specifies '
                               '`featurewise_center`, but it hasn\'t'
@@ -658,7 +671,20 @@ class ImageDataGenerator(object):
             broadcast_shape = [1, 1, 1]
             broadcast_shape[self.channel_axis - 1] = x.shape[self.channel_axis]
             self.mean = np.reshape(self.mean, broadcast_shape)
-            x -= self.mean
+	    if self.data_format == 'channels_first':
+	        # 'RGB'->'BGR'
+	        x = x[:, ::-1, :, :]
+	        # Zero-center by mean pixel
+	        x[:, 0, :, :] -= 103.939
+	        x[:, 1, :, :] -= 116.779
+	        x[:, 2, :, :] -= 123.68
+	    else:
+	        # 'RGB'->'BGR'
+	        x = x[:, :, :, ::-1]
+	        # Zero-center by mean pixel
+	        x[:, :, :, 0] -= 103.939
+	        x[:, :, :, 1] -= 116.779
+	        x[:, :, :, 2] -= 123.68
 
         if self.featurewise_std_normalization:
             self.std = np.std(x, axis=(0, self.row_axis, self.col_axis))
